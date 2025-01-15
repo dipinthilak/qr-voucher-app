@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100">
+    <div class="flex flex-row p-4 bg-blue-600 text-white">
+      <a href="/home" class="text-lg font-semibold">DASHBOARD</a>
+    </div>
+    <div class="flex items-center justify-center h-screen">
+      <form
+        class="w-full max-w-md bg-white shadow-lg rounded-lg p-8 border border-blue-600"
+        action="login" method="post" id="loginForm"
+      >
+        <h1 class="text-3xl font-bold text-center mb-6 text-blue-600">LOGIN</h1>
+
+        <label for="username" class="block text-lg font-medium mb-2">USERNAME</label>
+        <input
+          class="w-full border border-gray-300 rounded p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="text"
+          name="username"
+          id="username"
+          value="user"
+        />
+        
+        <label for="password" class="block text-lg font-medium mb-2">PASSWORD</label>
+        <input required
+        class="w-full border border-gray-300 rounded p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        type="password"
+        name="password"
+        id="password"
+        value="password"
+        />
+        
+        <button
+        class="w-full py-2 text-lg font-medium rounded bg-blue-600 text-white hover:bg-blue-700 transition duration-300"
+        type="button"
+        onclick="validateForm(event)"
+        >
+        LOGIN
+      </button>
+ </div>
+    
+    </form>
+    <script>
+      function validateForm(event) {
+        event.preventDefault();
+        let isValid=true;
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        if (!username) {
+          isValid=false;
+          alert("Enter user name");
+        }
+
+        if (!password || password.length < 6) {
+          isValid=false;
+          alert("enter valid password");
+        }
+          if(isValid) 
+        {
+          document.getElementById('loginForm').submit();
+        }
+      }
+    </script>
+  </body>
+</html>

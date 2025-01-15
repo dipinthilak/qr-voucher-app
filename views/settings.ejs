@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <div
+      class="flex flex-row p-4 bg-blue-600 text-white text-xl font-semibold justify-between space-x-20"
+    >
+      <a href="/home" class="mx-auto">DASHBOARD</a>
+      <a ca="" href="/settings" class="ml-auto">SETTINGS</a>
+      <a ca="" href="/logout" class="ml-auto">LOGOUT</a>
+    </div>
+
+    <div class="w-1/2 flex flex-col mx-auto mt-12 items-center justify-center">
+        <h1 class="font-bold text-3xl ">SETTINGS</h1>
+        <div class="bg-gray-200 flex flex-row items-center justify-center m-8 gap-2 w-full">
+            <div class="flex flex-row gap-5 text-2xl items-center justify-center">
+                <h1 class="uppercase">
+                    voucher validity:
+                </h1>
+                <input type="number" name="duration" id="duration" min="1" class="p-2 border rounded" value=<%= settings[0].duration %>>
+            </div>
+        </div>
+        <div class="bg-gray-200 flex flex-row items-center justify-center m-6 gap-2 w-full">
+            <div class="flex flex-row gap-5 text-2xl items-center justify-between">
+                <h1 class="uppercase">
+                    voucher size:
+                </h1>
+                <input type="number" name="width" id="width" class="w-20 p-2 border rounded" value=<%= settings[0].width %>><h1>mm X</h1>
+                <input type="number" name="height" id="height" class="w-20 p-2 border rounded" value=<%= settings[0].height %>><h1>mm</h1>
+            </div>
+        </div>
+
+        <div class="bg-gray-200 flex flex-row items-center justify-center m-6 gap-2 w-full">
+            <div class="flex flex-row gap-5 text-2xl items-center justify-between">
+                <h1 class="uppercase">
+                    Title text size:
+                </h1>
+                <input type="number" name="titleSize" id="titleSize" class="w-20 p-2 border rounded" value=<%= settings[0].title %>>
+            </div>
+        </div>
+
+        <div class="bg-gray-200 flex flex-row items-center justify-center m-6 gap-2 w-full">
+            <div class="flex flex-row gap-5 text-2xl items-center justify-center">
+                <h1 class="uppercase">
+                    Norml text size:
+                </h1>
+                <input type="number" name="normalSize" id="normalSize" class="w-20 p-2 border rounded" value=<%= settings[0].normal %>>
+            </div>
+        </div>
+        <button class="text-2xl bg-blue-600 font-semibold p-2 rounded-lg text-white hover:bg-blue-200 hover:text-black" onclick="saveSettings()">SAVE SETTINGS</button>
+
+
+    </div>
+    
+
+
+    <script>
+        function saveSettings() {
+          const duration = document.getElementById("duration").value;
+          const width = document.getElementById("width").value;
+          const height = document.getElementById("height").value;
+          const titleSize = document.getElementById("titleSize").value;
+          const normalSize = document.getElementById("normalSize").value;
+      
+          $.ajax({
+            url: "/save-settings",
+            method: "POST",
+            data: {
+              duration: duration,
+              width: width,
+              height: height,
+              titleSize: titleSize,
+              normalSize: normalSize,
+            },
+            success: function (res) {
+              Swal.fire({
+                icon: "success",
+                title: "Settings Saved",
+                text: "Your settings have been successfully saved!",
+              });
+            },
+            error: function (err) {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "An error occurred while saving settings. Please try again.",
+              });
+            },
+          });
+        }
+      </script>
+      
+  </body>
+</html>

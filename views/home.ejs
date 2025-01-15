@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <div
+      class="flex flex-row p-4 bg-blue-600 text-white text-xl font-semibold justify-between space-x-20"
+    >
+      <a href="/home" class="mx-auto">DASHBOARD</a>
+      <a ca="" href="/settings" class="ml-auto">SETTINGS</a>
+      <a ca="" href="/logout" class="ml-auto">LOGOUT</a>
+    </div>
+
+    <section class="bg-gray-100 flex flex-row m-8 gap-2">
+      <div
+        class="w-full h-20 bg-green-100 h-10 w-1/2 rounded-tl-lg rounded-bl-lg flex items-center justify-center"
+      >
+        <h1 class="text-2xl font-medium">
+          TOTAL VOUCHERS: <%=voucher.length%>
+        </h1>
+      </div>
+      <div
+        class="w-full h-20 bg-blue-100 h-10 w-1/2 rounded-tr-lg rounded-br-lg flex items-center justify-center"
+      >
+        <button
+          class="text-2xl font-medium bg-blue-400 p-4 m-4 rounded-lg w-1/2"
+          onclick="generateQr()"
+        >
+          GENERATE QR
+        </button>
+      </div>
+    </section>
+    <section class="bg-gray-100 flex flex-row m-8 gap-2">
+      <div class="w-full rounded-tl-lg rounded-bl-lg flex scrollable px-60">
+        <div class="w-full">
+          <% voucher.forEach(function(v) { %>
+          <div
+            class="w-1/2 border border-4 border-gray rounded-lg p-4 my-4 items-center justify-center bg-green-100"
+          >
+            <h1 class="text-3xl">
+              Voucher Code: <span class="font-medium"> <%= v.code %></span>
+            </h1>
+            <br />
+            <h1 class="text-2xl">
+              Created: <%= v.createdDate.toLocaleDateString('en-GB') %>
+            </h1>
+            <br />
+            <h1 class="text-2xl">
+              Expiry Date: <%= v.expiryDate.toLocaleDateString('en-GB') %>
+            </h1>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+      <div
+        id="qrSection"
+        class="w-full bg-blue-100 w-1/2 rounded-tr-lg rounded-br-lg text-2xl font-medium invisible"
+      >
+        <h1 class="flex items-center justify-center text-2xl underline">
+          VOUCHER DETAILS
+        </h1>
+        <div class="flex flex-row justify-between mx-60 mt-12">
+          <label>UNIQUE CODE</label>
+          <h1 id="uniqueNumber"></h1>
+        </div>
+        <div class="flex flex-row justify-between mx-60 mt-12">
+          <label>GENERATED DATE</label>
+          <h1 id="gDate"></h1>
+        </div>
+        <div class="flex flex-row justify-between mx-60 mt-12">
+          <label>EXPIRY DATE</label>
+          <h1 id="eDate"></h1>
+        </div>
+        <img
+          class="ml-60 mt-12 w-60 h-60"
+          id="qrCodeImg"
+          src=""
+          alt="QR Code"
+        />
+
+        <div
+          class="flex flex-row justify-between items-center mx-60 mt-12 text-2xl"
+        >
+          <button class="rounded-lg bg-red-500 p-4" onclick="printPdf()">
+            PRINT
+          </button>
+        </div>
+      </div>
+    </section>
+    <script>
+      const voucherData = {
+        code: "",
+        createdDate: "",
+        expiryDate: "",
+      };
+      function generateQr() {
+        $.ajax({
+          url: "/generate-qr",
+          method: "POST",
+          success: function (res) {
+            Swal.fire({
+              icon: "success",
+              title: " voucher generated",
+              text: "new voucher qr generated!",
+            });
+
+            if (res && res.data && res.data.qrCodeSrc) {
+              let createdDate = new Date(res.data.createdDate);
+              let expiryDate = new Date(res.data.expiryDate);
+
+              const qrImage = document.getElementById("qrCodeImg");
+              qrImage.src = res.data.qrCodeSrc;
+
+              const uCode = document.getElementById("uniqueNumber");
+              uCode.innerText = res.data.code;
+
+              const cDate = document.getElementById("gDate");
+              cDate.innerText = createdDate.toLocaleDateString("en-GB");
+
+              const lDate = document.getElementById("eDate");
+              lDate.innerText = expiryDate.toLocaleDateString("en-GB");
+              const voucherDetails = document.getElementById("qrSection");
+              voucherDetails.classList.remove("invisible");
+              voucherData.code = res.data.code;
+              voucherData.createdDate = createdDate;
+              voucherData.expiryDate = expiryDate;
+            }
+          },
+          error: function (err) {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "An error occurred while generating voucher. Please try again.",
+            });
+          },
+        });
+      }
+
+      function printPdf() {
+        const queryParams = new URLSearchParams(voucherData).toString();
+
+        $.ajax({
+          url: `/printPdf?${queryParams}`, 
+          method: "GET",
+          xhrFields: {
+            responseType: "blob",
+          },
+          success: function (blob) {
+            const pdfUrl = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = pdfUrl;
+            a.download = `Voucher_${voucherData.code || "Unknown"}.pdf`; 
+            document.body.appendChild(a); 
+            a.click(); 
+            document.body.removeChild(a); 
+
+            URL.revokeObjectURL(pdfUrl); 
+          },
+          error: function (error) {
+            console.error("Error generating or downloading PDF:", error);
+          },
+        });
+      }
+    </script>
+  </body>
+</html>
